@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#263f37"><title>栖野 TRAILBOUND · 山谷越野</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect rx='14' width='64' height='64' fill='%23344e41'/%3E%3Cpath d='M8 46L25 18l11 17 7-11 14 22' fill='none' stroke='%23ebd6a9' stroke-width='5'/%3E%3C/svg%3E"><link rel="stylesheet" href="/style.css"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="theme-color" content="#263f37"><title>栖野 TRAILBOUND · 山谷越野</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect rx='14' width='64' height='64' fill='%23344e41'/%3E%3Cpath d='M8 46L25 18l11 17 7-11 14 22' fill='none' stroke='%23ebd6a9' stroke-width='5'/%3E%3C/svg%3E"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/expansion.css"></head>
 <body>
 <canvas id="world" aria-label="三维越野探索场景"></canvas>
 <div id="loading"><div class="mark">⌁</div><span>正在铺开山谷…</span><small>TRAILBOUND / ORIGINAL EXPEDITION</small></div>
@@ -11,14 +11,14 @@
   <h1>栖野<span>TRAILBOUND</span></h1>
   <p class="intro">路的尽头，<br>还有风景。</p>
   <p class="description">一辆老四驱，一整个山谷。<br>放慢脚步，沿着自己的方向去探索。</p>
-  <div class="location"><span>↗</span><div><b>松风山谷</b><small>PINEWIND VALLEY · 0.77 km²</small></div><span class="tag">自由探索</span></div>
+  <div id="map-selector" aria-label="选择地图"></div><div class="location"><span>↗</span><div><b>松风山谷</b><small>PINEWIND VALLEY · 0.77 km²</small></div><span class="tag">自由探索</span></div>
   <label class="name-label" for="name">你的呼号 <small>最多 12 个字</small></label><input id="name" maxlength="12" placeholder="山野旅人" value="山野旅人" autocomplete="off">
   <button id="solo" class="primary"><span>独自出发</span><span>↗</span></button>
   <div class="row"><button id="match" class="secondary">⌁　匹配同行者 <small>1–4 人</small></button><button id="friends" class="secondary">邀请朋友</button></div>
   <div id="join-panel" class="hidden"><div class="row"><button id="create" class="secondary">创建房间</button><input id="code" maxlength="4" placeholder="邀请码" aria-label="房间邀请码"><button id="join" class="secondary">加入</button></div></div>
-  <div id="connection-status" role="status"></div>
+  <div id="soccer-options" class="hidden"><label for="team">选择阵营</label><select id="team"><option value="auto">自动平衡</option><option value="blue">蓝方 · 攻橙色球门</option><option value="orange">橙方 · 攻蓝色球门</option></select></div><button id="reconnect" class="secondary hidden">恢复上次房间</button><div id="connection-status" role="status"></div>
   <button id="leave" class="secondary hidden">离开房间，继续独自探索</button>
-  <div class="menu-bottom"><span class="dot"></span> 本地测试版 0.1 <span>原创场景与车辆</span></div>
+  <div class="menu-bottom"><span class="dot"></span> 本地测试版 0.2 <span>原创场景与车辆</span></div>
  </div>
  <div class="vehicle-card"><div class="eyebrow">01 / YOUR TRUSTED COMPANION</div><h2>PIONEER <em>42</em></h2><p>开拓者 · 经典四驱</p><div class="specs"><span><b>4×4</b>分时四驱</span><span><b>1,160</b>整备质量 kg</span><span><b>LIVE</b>前后整体桥</span></div><div class="swatches"><button data-color="#8b9471" class="selected" style="--c:#8b9471" aria-label="苔原绿"></button><button data-color="#c5b58a" style="--c:#c5b58a" aria-label="沙岩米"></button><button data-color="#6b8c91" style="--c:#6b8c91" aria-label="湖水蓝"></button><button data-color="#a8684b" style="--c:#a8684b" aria-label="日落红"></button><span>拖动画面，看看老朋友</span></div></div>
  <div class="menu-top"><span>松风山谷 / 秋日</span><button id="menu-weather" class="plain" title="切换光照">☀ 夕阳之前</button></div>
@@ -26,7 +26,7 @@
 <div id="hud" class="hidden">
  <header><button id="menu-button" class="brand-button" aria-label="打开菜单">⌁ <span>栖野<small>TRAILBOUND</small></span></button><div class="expedition"><span class="live-dot"></span><span id="session-label">独自探索</span><span id="room-label"></span></div><div class="header-actions"><button id="sound" title="声音">声音 开</button><button id="weather" title="切换光照 T">☀ 晴日</button><button id="map-button" title="地图 M">地图 <kbd>M</kbd></button></div></header>
  <aside class="mission"><div class="eyebrow">THE VALLEY IS YOURS</div><div class="mission-head"><h2>山谷手记</h2><span id="progress">0 / 5</span></div><div class="progress-track"><i id="progress-bar"></i></div><div id="destination"><span class="destination-icon">↗</span><div><b id="target-name">松风营地</b><small id="target-distance">向着风景出发</small></div></div><p id="mission-description">没有倒计时。找到五处山谷地标，<br>或者，就沿着小路随意开开。</p><div id="players"></div></aside>
- <div id="toast" role="status"></div>
+ <div id="scoreboard" class="hidden"><span class="blue">蓝队 <b id="blue-score">0</b></span><div><strong id="match-clock">05:00</strong><small id="phase-label">等待开球</small></div><span class="orange"><b id="orange-score">0</b> 橙队</span></div><div id="navigation"><span id="nav-arrow">↑</span><div><b id="nav-target"></b><small id="nav-distance"></small></div></div><section id="room-panel" class="hidden"><div id="room-roster"></div><div class="row"><button id="add-ai" class="secondary">+1 AI</button><button id="fill-ai" class="secondary">补齐 5 对 5</button></div><div class="row"><button id="start-match" class="primary">开始比赛</button><button id="restart-match" class="secondary">重赛</button></div><small id="room-hint"></small></section><div id="toast" role="status"></div>
  <section class="driving"><div class="speed"><strong id="speed">0</strong><span>km/h</span></div><div class="transmission"><b id="gear">N</b><small id="drive-mode">4H · 四驱</small></div><div class="driving-status"><span id="surface">砂石</span><span id="slope">坡度 0°</span><span id="distance">0.00 km</span></div><div class="suspension"><span>悬架</span><div><i id="spring-0"></i><i id="spring-1"></i><i id="spring-2"></i><i id="spring-3"></i></div><small id="axle-status">轮胎接地</small></div></section>
  <nav class="tools"><button id="low" title="低速四驱 F"><kbd>F</kbd> 低速挡</button><button id="winch" title="绞盘 E，24米内树木"><kbd>E</kbd> 绞盘</button><button id="lights" class="active" title="车灯 L"><kbd>L</kbd> 车灯</button><button id="camera" title="相机 C"><kbd>C</kbd> 镜头</button><button id="recover" title="回到安全位置 R"><kbd>R</kbd> 救援</button></nav>
  <aside class="map-widget"><div class="map-caption"><span>松风山谷</span><small>N ↑</small></div><canvas id="minimap" width="240" height="200" aria-label="山谷小地图"></canvas><div class="map-footer"><span id="coordinates">N 000 / E 000</span><span id="ping">离线探索</span></div></aside>
@@ -37,5 +37,5 @@
 <div id="mobile-controls" class="hidden"><div><button data-key="KeyA">◀</button><button data-key="KeyD">▶</button></div><div><button data-key="KeyS">倒车</button><button data-key="KeyW">油门</button><button data-key="Space">刹车</button></div></div>
 <div id="fatal" class="hidden"><h2>浏览器还没准备好进入山谷</h2><p id="fatal-message"></p><button onclick="location.reload()">重新打开</button></div>
 <script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
-<script type="module" src="/game.mjs"></script>
+<script type="module" src="/play.mjs"></script>
 </body></html>

@@ -1,10 +1,8 @@
-import {cp,mkdir,writeFile} from 'node:fs/promises';
-const destination='../release/trailbound-0.1.0';await mkdir(destination,{recursive:true});
-const source=['public','shared','cloudflare','scripts','tests','server.mjs','package.json','package-lock.json','wrangler.jsonc','START.cmd','README.zh-CN.md','VALIDATION.md','ASSET-LICENSES.md','.gitignore','dist'];
-for(const item of source)await cp(item,`${destination}/${item}`,{recursive:true});
-for(const folder of ['node_modules/three/build','node_modules/three/examples/jsm/geometries','node_modules/three/examples/jsm/environments','verification'])await mkdir(`${destination}/${folder}`,{recursive:true});
+import {cp,mkdir,writeFile,readFile} from 'node:fs/promises';
+const pkg=JSON.parse(await readFile('package.json','utf8')),flavor=process.argv.includes('--crew')?'-crew':'',destination=`../release/trailbound-${pkg.version}${flavor}`;await mkdir(destination,{recursive:true});
+for(const item of ['public','shared','cloudflare','scripts','tests','server.mjs','package.json','package-lock.json','wrangler.jsonc','START.cmd','README.md','README.zh-CN.md','VALIDATION.md','ASSET-LICENSES.md','.gitignore','dist'])await cp(item,`${destination}/${item}`,{recursive:true});
+for(const dir of ['node_modules/three/build','node_modules/three/examples/jsm/geometries','node_modules/three/examples/jsm/environments','verification/cloudflare'])await mkdir(`${destination}/${dir}`,{recursive:true});
 for(const file of ['build/three.module.js','build/three.core.js','examples/jsm/geometries/RoundedBoxGeometry.js','examples/jsm/environments/RoomEnvironment.js','LICENSE','package.json'])await cp(`node_modules/three/${file}`,`${destination}/node_modules/three/${file}`);
 await cp('node_modules/ws',`${destination}/node_modules/ws`,{recursive:true});
-for(const [from,to]of [['artifacts/driving-results.json','driving-results.json'],['artifacts/browser-results.json','node-browser-results.json'],['artifacts/cloudflare/browser-results.json','cloudflare-browser-results.json']])await cp(from,`${destination}/verification/${to}`);
-await writeFile(`${destination}/RELEASE.txt`,'TRAILBOUND local alpha 0.1.0\nRequires Node.js 22+ and a WebGL 2 browser.\nDouble-click START.cmd and open http://127.0.0.1:8787\nGame runtime dependencies are bundled; no download required for local play.\nFor development tests, run npm ci to install the full development toolchain.\nThis release has not been deployed to any public host.\n');
-console.log(destination);
+for(const file of ['v2-browser-results.json','v2-network-results.json','v2-ten-player-results.json','v2-touch-results.json','cloudflare/v2-network-results.json','cloudflare/v2-ten-player-results.json','crew-browser-results.json'])await cp(`artifacts/${file}`,`${destination}/verification/${file}`);
+await writeFile(`${destination}/RELEASE.txt`,`TRAILBOUND ${pkg.version} local test\nRequires Node.js 22+ and a WebGL 2 browser.\nOpen START.cmd, then http://127.0.0.1:8790\nRuntime dependencies are bundled.\nNo GitHub push or public deployment performed.\n`);console.log(destination);

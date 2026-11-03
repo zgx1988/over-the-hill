@@ -14,7 +14,7 @@ if not exist "node_modules\three\build\three.module.js" (
   )
 )
 echo.
-echo TRAILBOUND local test: http://127.0.0.1:8787
+echo TRAILBOUND local test: http://127.0.0.1:8790
 echo Keep this window open while playing. Ctrl+C stops the game server.
 echo No public deployment is created.
 echo.

@@ -1,5 +1,6 @@
 import * as T from '/vendor/three.module.js';
 import {RoundedBoxGeometry} from '/vendor/RoundedBoxGeometry.js';
+import {makeCrew,makeSteeringWheel} from './crew.mjs';
 const mat=(c,metal=0,rough=.7)=>new T.MeshStandardMaterial({color:c,metalness:metal,roughness:rough});
 const rubber=mat('#242726',.02,.98), steel=mat('#333d38',.7,.58),chrome=mat('#a9b1a6',.8,.3),canvas=mat('#565e48',0,1),seat=mat('#5b6047',0,.95),black=mat('#1c2421',.2,.7);
 function box(group,w,h,d,m,x=0,y=0,z=0){const o=new T.Mesh(new RoundedBoxGeometry(w,h,d,2,Math.min(.028,w/4,h/4,d/4)),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;group.add(o);return o;}
@@ -54,7 +55,8 @@ export function makeVehicle(color='#8b9471'){
  box(body,1.32,.35,.07,paint,0,.55,.23);
  for(let i=0;i<4;i++){cylinder(body,i===0?.07:.035,i===0?.07:.035,.012,black,-.22+i*.19,.58,.183,'z');}
  tube(body,[[-.37,.43,.23],[-.37,.64,-.01]],.021,steel);
- const steering=new T.Mesh(new T.TorusGeometry(.145,.012,6,24),black);steering.position.set(-.37,.65,-.04);steering.rotation.x=.65;body.add(steering);
+ const steering=makeSteeringWheel(body);
+ const crew=makeCrew(body,steering);
  for(const x of [-.05,.08])tube(body,[[x,.12,-.05],[x,.43,-.08]],.012,steel);
  // Two-piece windscreen: thin steel frame and transparent glass with a slight rearward rake.
  const screen=new T.Group();screen.position.set(0,.7,.28);screen.rotation.x=.13;body.add(screen);
@@ -77,11 +79,12 @@ export function makeVehicle(color='#8b9471'){
  const wheels=[];for(const [x,z] of [[-.74,1.15],[.74,1.15],[-.74,-1.15],[.74,-1.15]]){const w=makeWheel();w.position.set(x,-.4,z);body.add(w);wheels.push(w);}
  const beams=[];for(const x of [-.57,.57]){const light=new T.SpotLight('#ffe5ae',175,58,.38,.6,1.1);light.position.set(x,.49,1.72);light.target.position.set(x,-.4,25);body.add(light,light.target);beams.push(light);}
  const rope=new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(),new T.Vector3()]),new T.LineBasicMaterial({color:'#d8c397'}));root.add(rope);rope.visible=false;
- root.userData={body,wheels,axles,springs,shocks,lamps,emissive,beams,rope};return root;
+ root.userData={body,wheels,axles,springs,shocks,lamps,emissive,beams,rope,steering,crew};return root;
 }
 export function updateVehicle(root,p,dt=.016){
  root.position.set(p.x,p.y,p.z);root.rotation.y=p.yaw;const {body,wheels,axles,springs,shocks,emissive,beams,rope}=root.userData;
  body.rotation.set(-p.pitch,0,p.roll,'YXZ');
+ root.userData.crew?.update(p,dt);
  wheels.forEach((w,i)=>{w.position.y=p.wheels[i]??-.4;w.rotation.y=i<2?p.steer:0;w.userData.spin.rotation.x=p.wheelSpin;});
  axles.forEach((a,i)=>{a.position.y=(wheels[i*2].position.y+wheels[i*2+1].position.y)/2;const angle=Math.asin(T.MathUtils.clamp((wheels[i*2+1].position.y-wheels[i*2].position.y)/1.48,-.95,.95));a.rotation.z=angle;for(let j=0;j<2;j++){const w=wheels[i*2+j];w.position.x=(j?1:-1)*.74*Math.cos(angle);w.rotation.z=angle;}});
  for(const spring of springs){const a=axles[spring.userData.z>0?0:1],pos=spring.geometry.attributes.position,base=spring.userData.base;for(let i=0;i<pos.count;i++){const weight=Math.max(0,1-Math.abs(base[i*3+2]-spring.userData.z)/.46);pos.setY(i,base[i*3+1]+(a.position.y+.36)*weight);}pos.needsUpdate=true;}
