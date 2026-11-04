@@ -1,5 +1,13 @@
 import {terrain,surface,VEHICLES,SPAWN,clamp,OBSTACLES,nearestAnchor,POIS} from './world.mjs';
 import {getMap,groundHeight,inZip} from './maps.mjs';
+export const STEERING={lock:.60,response:16,returnRate:22,deadzone:.025};
+export function steeringAngle(current,input,speed,dt){
+ const command=Math.abs(input)<STEERING.deadzone?0:input;
+ const lock=STEERING.lock/(1+Math.max(0,Math.abs(speed)-5)*.045);
+ const target=command*lock,centering=command===0||current*command<0;
+ const angle=current+(target-current)*(-Math.expm1(-dt*(centering?STEERING.returnRate:STEERING.response)));
+ return command===0&&Math.abs(angle)<.002?0:angle;
+}
 export const FIXED_DT=1/60;
 export function createCar(id='local',name='旅人',index=0,mapId='valley'){const map=getMap(mapId),x=map.spawn.x+(index%2)*3.8,z=map.spawn.z-Math.floor(index/2)*4;return {id,name,mapId,vehicle:'scout',color:index%4,x,z,y:groundHeight(mapId,x,z)+.82,yaw:map.spawn.yaw,speed:0,vy:0,pitch:0,roll:0,pitchV:0,rollV:0,steer:0,wheelSpin:0,wheels:[-.4,-.4,-.4,-.4],compression:[.5,.5,.5,.5],low:false,lights:true,winch:false,anchor:null,travel:0,resetCooldown:0,discovered:[],tasks:[],flags:{},input:{},lastSafe:{x,z,yaw:map.spawn.yaw},water:0,falls:0};}
 export function resetCar(p){const s=p.lastSafe||getMap(p.mapId).spawn;p.x=s.x;p.z=s.z;p.yaw=s.yaw;p.y=groundHeight(p.mapId,p.x,p.z)+.82;p.speed=0;p.vy=0;p.pitch=p.roll=p.pitchV=p.rollV=0;p.winch=false;p.anchor=null;p.fallTime=0;}
@@ -29,7 +37,7 @@ export function stepCar(p,input={},dt=FIXED_DT,cars=[],world=null){
  if(input.brake)acc-=Math.sign(p.speed)*Math.min(Math.abs(p.speed)/dt,14);
  p.speed=clamp(p.speed+acc*dt,-max*.38,max);
  if(!throttle&&Math.abs(p.speed)<.12&&Math.abs(gradient)<.12)p.speed=0;
- p.steer+=(turn*.51-p.steer)*(1-Math.exp(-dt*7));
+ p.steer=steeringAngle(p.steer,turn,p.speed,dt);
  const yawRate=Math.tan(p.steer)*p.speed/v.wheelbase/(1+Math.abs(p.speed)*.055);
  p.yaw+=yawRate*dt;
  const ox=p.x,oz=p.z;

@@ -1,3 +1,4 @@
+import {WHEEL_RADIUS} from './wheel-spec.mjs';
 export const MAP_SIZE = 880;
 export const WATER = -2.4;
 export const SPAWN = { x: -258, z: 262, yaw: 2.3 };
@@ -10,7 +11,7 @@ export const POIS = [
 ];
 export const ROUTE = [[-280,290],[-258,262],[-214,225],[-168,181],[-122,139],[-86,108],[-36,102],[27,124],[80,154],[114,162],[164,129],[189,72],[219,16],[205,-68],[154,-112],[88,-137],[17,-163],[-51,-192],[-30,-280]];
 export const VEHICLES = {
-  scout: { name: 'PIONEER 42', zh: '开拓者 · 经典四驱', color: '#8b9471', mass: 1160, power: 3.6, wheelbase: 2.3, track: 1.48, radius: .43, clearance: .82, maxSpeed: 12.5 },
+  scout: { name: 'PIONEER 42', zh: '开拓者 · 经典四驱', color: '#8b9471', mass: 1160, power: 3.6, wheelbase: 2.3, track: 1.48, radius: WHEEL_RADIUS, clearance: .82, maxSpeed: 12.5 },
 };
 export const clamp = (x,a,b) => Math.max(a,Math.min(b,x));
 export const lerp = (a,b,t) => a+(b-a)*t;

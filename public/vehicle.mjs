@@ -1,23 +1,13 @@
 import * as T from '/vendor/three.module.js';
 import {RoundedBoxGeometry} from '/vendor/RoundedBoxGeometry.js';
 import {makeCrew,makeSteeringWheel} from './crew.mjs';
+import {makeWheel} from './wheel.mjs';
 const mat=(c,metal=0,rough=.7)=>new T.MeshStandardMaterial({color:c,metalness:metal,roughness:rough});
 const rubber=mat('#242726',.02,.98), steel=mat('#333d38',.7,.58),chrome=mat('#a9b1a6',.8,.3),canvas=mat('#565e48',0,1),seat=mat('#5b6047',0,.95),black=mat('#1c2421',.2,.7);
 function box(group,w,h,d,m,x=0,y=0,z=0){const o=new T.Mesh(new RoundedBoxGeometry(w,h,d,2,Math.min(.028,w/4,h/4,d/4)),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;group.add(o);return o;}
 function tube(group,points,r,m){const curve=new T.CatmullRomCurve3(points.map(p=>new T.Vector3(...p)));const o=new T.Mesh(new T.TubeGeometry(curve,Math.max(2,points.length*5),r,7,false),m);o.castShadow=true;group.add(o);return o;}
 function cylinder(group,r1,r2,length,m,x,y,z,axis='x',segments=20){const o=new T.Mesh(new T.CylinderGeometry(r1,r2,length,segments),m);if(axis==='x')o.rotation.z=Math.PI/2;if(axis==='z')o.rotation.x=Math.PI/2;o.position.set(x,y,z);o.castShadow=true;group.add(o);return o;}
 function panel(group,points,depth,m,position,rotation){const s=new T.Shape();points.forEach(([x,y],i)=>i?s.lineTo(x,y):s.moveTo(x,y));s.closePath();const geo=new T.ExtrudeGeometry(s,{depth,bevelEnabled:true,bevelThickness:.016,bevelSize:.018,bevelSegments:2,steps:1});const o=new T.Mesh(geo,m);o.position.set(...position);if(rotation)o.rotation.set(...rotation);o.castShadow=true;o.receiveShadow=true;group.add(o);return o;}
-function makeWheel(){
- const g=new T.Group(),spin=new T.Group();g.add(spin);
- const tire=new T.Mesh(new T.TorusGeometry(.305,.12,12,40),rubber);tire.rotation.y=Math.PI/2;spin.add(tire);
- cylinder(spin,.305,.305,.245,rubber,0,0,0,'x',40);
- cylinder(spin,.208,.208,.255,steel,0,0,0,'x',28);
- for(const side of [-1,1]){cylinder(spin,.17,.17,.018,chrome,side*.133,0,0,'x');cylinder(spin,.091,.095,.065,steel,side*.152,0,0,'x');
- for(let n=0;n<5;n++){const a=n*Math.PI*2/5;cylinder(spin,.017,.017,.02,chrome,side*.168,Math.cos(a)*.118,Math.sin(a)*.118,'x',6);}}
- const tread=new T.InstancedMesh(new T.BoxGeometry(.14,.045,.115),rubber,64),dummy=new T.Object3D();
- for(let i=0;i<32;i++)for(let side=0;side<2;side++){const a=i*Math.PI*2/32+(side?.04:0);dummy.position.set(side?.085:-.085,Math.cos(a)*.421,Math.sin(a)*.421);dummy.rotation.set(a,0,side?.28:-.28);dummy.updateMatrix();tread.setMatrixAt(i*2+side,dummy.matrix);}
- tread.castShadow=true;spin.add(tread);g.userData.spin=spin;return g;
-}
 export function makeVehicle(color='#8b9471'){
  const root=new T.Group(),body=new T.Group();root.add(body);
  const grime=document.createElement('canvas');grime.width=grime.height=256;const gc=grime.getContext('2d');gc.fillStyle='#ffffff';gc.fillRect(0,0,256,256);const gradient=gc.createLinearGradient(0,0,0,256);gradient.addColorStop(0,'rgba(76,66,43,.28)');gradient.addColorStop(.38,'rgba(108,101,74,.03)');gradient.addColorStop(1,'rgba(255,255,255,0)');gc.fillStyle=gradient;gc.fillRect(0,0,256,256);for(let i=0;i<3200;i++){const x=(Math.sin(i*72.35)*43758.54)%1*256,y=Math.abs((Math.sin(i*11.28)*16327.2)%1)*256;gc.fillStyle=`rgba(89,77,53,${.02+(1-y/256)*.12})`;gc.fillRect(Math.abs(x),y,1.2,1.2);}const grimeMap=new T.CanvasTexture(grime);grimeMap.colorSpace=T.SRGBColorSpace;

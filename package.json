@@ -11,6 +11,7 @@
     "dev:cloudflare": "wrangler dev --local --ip 127.0.0.1 --port 8791 --persist-to .wrangler/state",
     "build": "node scripts/build.mjs",
     "test:touch": "node tests/touch-browser.mjs",
+    "test:handling": "node tests/handling-browser.mjs",
     "package": "node scripts/package.mjs"
   },
   "dependencies": {
